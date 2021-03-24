@@ -1,0 +1,15 @@
+﻿--- Registers ---
+""   <CR>bool AudioThread::Open(AVCodecParameters *para)<CR>
+
+"0   #include "myresample.h"<CR>
+"1   <CR>bool AudioThread::Open(AVCodecParameters *para)<CR>
+"2   
+
+"3   
+"4   
+"5   
+"6   
+"7   
+"8   
+"9   
+"a   /*--------------------------------- ---------------------------------------*/<CR>bool AudioThread::Open(AVCodecParameters *para)<CR>
