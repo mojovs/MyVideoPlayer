@@ -26,7 +26,7 @@ class MyThread : public QThread {
         /*--视频部分--*/
         qDebug() << "CopyVPara = " << demux.CopyVideoParam() << endl;
         qDebug() << "CopyVPara = " << demux.CopyAudioParam() << endl;
-        vThread.Open(demux.CopyVideoParam(), video);
+        vThread.Open(demux.CopyVideoParam(), video);	//打开视频解码器
         vThread.start();
         /*--音频部分--*/
         qDebug() << "aThread open:" << aThread.Open(demux.CopyAudioParam());    //打开音频处理线程

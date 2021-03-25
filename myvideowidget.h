@@ -6,7 +6,7 @@
 #include <mutex>
 #include <qglshaderprogram>
 
-#include "videobase.h"
+#include "Thread/videobase.h"
 extern "C" {
 #include "libavutil/frame.h"
 }

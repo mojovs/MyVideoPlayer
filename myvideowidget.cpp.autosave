@@ -12,7 +12,6 @@
 extern "C" {
 #include "libavformat/avformat.h"
 }
-FILE* pfd = NULL;
 /*--定点着色器*/
 const char* vStr = GET_STR(attribute vec4 vertexIn; attribute vec2 textureIn; varying vec2 textureOut; void main(void) {
     gl_Position = vertexIn;

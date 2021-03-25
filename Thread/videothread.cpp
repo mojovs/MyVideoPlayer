@@ -3,7 +3,7 @@
 VideoThread::VideoThread() {}
 
 VideoThread::~VideoThread() {}
-
+/*--打开视频解码器，初始化播放窗口--*/
 bool VideoThread::Open(AVCodecParameters* para, VideoBase* video) {
     if (!para)
         return false;
