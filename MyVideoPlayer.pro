@@ -32,8 +32,10 @@ SOURCES += \
     myvideowidget.cpp \
     myresample.cpp \
     myaudioplay.cpp \
-    audiothread.cpp \
-    videothread.cpp
+    Thread/demuxthread.cpp \
+    Thread/audiothread.cpp \
+    Thread/demuxthread.cpp \
+    Thread/videothread.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,9 +45,11 @@ HEADERS += \
     myresample.h \
     common.h \
     myaudioplay.h \
-    audiothread.h \
-    videothread.h \
-    videobase.h
+    Thread/demuxthread.h \
+    Thread/audiothread.h \
+    Thread/demuxthread.h \
+    Thread/videobase.h \
+    Thread/videothread.h
 
 FORMS += \
         mainwindow.ui
