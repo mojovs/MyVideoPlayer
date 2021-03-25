@@ -11,10 +11,11 @@ bool MyResample::Open(AVCodecParameters* param, bool needCleanParam) {
     if (!param)
         return false;
     m_mux.lock();    //上锁
+    channels = param->channels;
     qDebug() << "RESAMPLE Param->sample_rate" << param->sample_rate;
-    swrCtx =
-        swr_alloc_set_opts(swrCtx, av_get_default_channel_layout(2), m_sampleFormat, param->sample_rate,
-                           av_get_default_channel_layout(2), (AVSampleFormat)param->format, param->sample_rate, 0, 0);
+    swrCtx = swr_alloc_set_opts(swrCtx, av_get_default_channel_layout(2), m_sampleFormat, param->sample_rate,
+                                av_get_default_channel_layout(channels), (AVSampleFormat)param->format,
+                                param->sample_rate, 0, 0);
     if (needCleanParam)
         avcodec_parameters_free(&param);
     int ret = swr_init(swrCtx);    ///初始化重采样
@@ -59,7 +60,7 @@ int MyResample::Read(AVFrame* frame, unsigned char* outdata) {
         qDebug() << "swr convert failed: %s" << av_err2str(ret);
         return -1;
     }
-    int size = ret * frame->channels * av_get_bytes_per_sample(m_sampleFormat);    //返回重采样过后的数据大小
+    int size = ret * 2 * av_get_bytes_per_sample(m_sampleFormat);    //返回重采样过后的数据大小
     m_mux.unlock();
 
     return size;

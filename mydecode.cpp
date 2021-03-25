@@ -79,6 +79,7 @@ bool MyDecode::Send(AVPacket* pkt) {
     }
     /*--发送包到缓冲池--*/
     int ret = avcodec_send_packet(codecCtx, pkt);
+    std::cout << "SEND PACKET SUCESS!Type is  " << codecCtx->codec_type;
     if (ret < 0) {
         mux.unlock();    //解锁
         qDebug() << __FILE__ << __LINE__ << "send packet error:"

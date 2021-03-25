@@ -19,7 +19,7 @@ class MyThread : public QThread {
     AudioThread aThread;
     VideoThread vThread;
     void Init() {
-        const char* url = "E:/ffmpeg/ffmpeg-4.3.1/bin/good.mp4";
+        const char* url = "E:/ffmpeg/ffmpeg-4.3.1/bin/test.mp4";
         /*--解复用--*/
         qDebug() << "demux.Open = " << demux.Open(url);
 

@@ -20,6 +20,7 @@ class MyResample {
     std::mutex m_mux;
     SwrContext* swrCtx = NULL;                            //重采样上下文
     AVSampleFormat m_sampleFormat = AV_SAMPLE_FMT_S16;    //采样格式
+    int channels = 2;                                     //音频通道数
 };
 
 #endif    // MYRESAMPLE_H
