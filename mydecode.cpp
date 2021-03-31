@@ -27,8 +27,6 @@ bool MyDecode::Open(AVCodecParameters* param) {
     /*--分配解码器内存--*/
     codecCtx = avcodec_alloc_context3(m_codec);
     avcodec_parameters_to_context(codecCtx, param);    //编码器上下文获取
-    qDebug() << codecCtx->sample_fmt;
-    qDebug() << codecCtx->sample_rate;
     avcodec_parameters_free(&param);
     /*--设置解码线程为8--*/
     codecCtx->thread_count = 8;
@@ -59,6 +57,7 @@ bool MyDecode::Close() {
         avcodec_close(codecCtx);
         avcodec_free_context(&codecCtx);
     }
+    pts = 0;
     mux.unlock();
 
     return true;
@@ -86,8 +85,8 @@ bool MyDecode::Send(AVPacket* pkt) {
         return false;
     }
     /*--释放掉包--*/
-    mux.unlock();
     av_packet_free(&pkt);
+    mux.unlock();
     return true;
 }
 
@@ -103,12 +102,13 @@ AVFrame* MyDecode::Receive() {
     AVFrame* frame = av_frame_alloc();
     int ret = avcodec_receive_frame(codecCtx, frame);    //接受一帧内容
     if (ret < 0) {
-        qDebug() << "avcodec receive error " << av_err2str(ret);
-        qDebug() << "codec_type is " << codecCtx->codec_type;
+        //  qDebug() << "avcodec receive error " << av_err2str(ret);
+        //  qDebug() << "codec_type is " << codecCtx->codec_type;
         mux.unlock();
         av_frame_free(&frame);
         return false;
     }
+    pts = frame->pts;
     mux.unlock();
     return frame;
 }

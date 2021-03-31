@@ -20,6 +20,7 @@ class MyAudioPlay {
     virtual void Close() = 0;                                      //纯虚:关闭播放
     virtual bool Write(const unsigned char* data, int len) = 0;    //纯虚：向音频区里写入数据
     virtual int FreeBufferAvailable() = 0;                         //纯虚：显示缓冲池可用空间
+    virtual long long getPlayDelay() = 0;
 };
 
 class AudioPlayer : public MyAudioPlay {
@@ -32,6 +33,8 @@ class AudioPlayer : public MyAudioPlay {
     virtual void Close();                                      //关闭音频设备
     virtual bool Write(const unsigned char* data, int len);    //向音频区里写入数据
     virtual int FreeBufferAvailable();                         //显示缓冲池可用空间
+
+    virtual long long getPlayDelay();    //获取Qt缓冲的延迟
 };
 
 #endif    // MYAUDIOPLAY_H

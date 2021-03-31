@@ -29,7 +29,7 @@ class MyVideoWidget : public QOpenGLWidget, protected QOpenGLFunctions, public V
     GLuint unis[3] = {0};
     GLuint texs[3] = {0};
     unsigned char* data[3] = {0};    //内存空间
-    int width = 1024;
-    int height = 544;
+    int width = 1920;
+    int height = 1080;
 };
 #endif    // MYVIDEOWIDGET_H

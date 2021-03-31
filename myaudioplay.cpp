@@ -1,5 +1,6 @@
 ﻿#include "myaudioplay.h"
 
+#include <QDebug>
 MyAudioPlay::MyAudioPlay() {}
 
 MyAudioPlay::~MyAudioPlay() {}
@@ -26,6 +27,7 @@ bool AudioPlayer::Open() {
     /* 打开设备 */
     m_mux.lock();    //保护io内部的数据
     audioOutput = new QAudioOutput(fmt);
+    //	audioOutput->setBufferSize(1024 * 1024 * 2);		//设置缓冲池大小
     io = audioOutput->start();    //开始播放
     m_mux.unlock();
 
@@ -76,4 +78,27 @@ int AudioPlayer::FreeBufferAvailable() {
     int ret = audioOutput->bytesFree();
     m_mux.unlock();
     return ret;
+}
+
+long long AudioPlayer::getPlayDelay() {
+    m_mux.lock();
+
+    double pts = 0;
+    /*--计算出qt音频缓冲池里面数据还剩下多少*/
+    double len = audioOutput->bufferSize() - audioOutput->bytesFree();
+
+    /*1s 数据大小*/
+    double size = sampleRate * sampleSize / 8 * channels;
+    if (len == 0) {
+        m_mux.unlock();
+        return 0;
+    }
+    if (size == 0) {
+        m_mux.unlock();
+        return 0;
+    } else {
+        pts = len / size * 1000;    //单位为ms
+        m_mux.unlock();
+        return pts;
+    }
 }

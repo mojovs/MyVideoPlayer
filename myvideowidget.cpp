@@ -12,7 +12,6 @@
 extern "C" {
 #include "libavformat/avformat.h"
 }
-FILE* pfd = NULL;
 /*--定点着色器*/
 const char* vStr = GET_STR(attribute vec4 vertexIn; attribute vec2 textureIn; varying vec2 textureOut; void main(void) {
     gl_Position = vertexIn;
@@ -47,31 +46,42 @@ void MyVideoWidget::Repaint(AVFrame* frame) {
         return;
     }
     /*--帧数据拷贝进data--*/
-    unsigned char *p0 = NULL, *p1 = NULL, *p2 = NULL;
-    p0 = frame->data[0];
-    p1 = frame->data[1];
-    p2 = frame->data[2];
-    int wrap = frame->linesize[0];
-    //    QTime time;
-    //   time.start();
+    //    unsigned char *p0 = NULL, *p1 = NULL, *p2 = NULL;
+    //    p0 = frame->data[0];
+    //    p1 = frame->data[1];
+    //    p2 = frame->data[2];
+    //    int wrap = frame->linesize[0];
     /*--qtbug:memcpy无法拷贝数据,逐字节拷贝整个过程开销2-3ms--*/
     /*--Y数据逐字节拷贝进材质data里面--*/
-    for (int i = 0; i < frame->height; i++) {
-        for (int j = 0; j < frame->width; j++) {
-            data[0][j + i * width] = *(p0 + i * wrap + j);
-        }
+    // for (int i = 0; i < frame->height; i++) {
+    //    for (int j = 0; j < frame->width; j++) {
+    //        data[0][j + i * width] = *(p0 + i * wrap + j);
+    //    }
+    //}
+    ///*--UV数据逐字节拷贝进材质data里面--*/
+    // for (int i = 0; i < frame->height / 2; i++) {
+    //    for (int j = 0; j < frame->width / 2; j++) {
+    //        data[1][j + i * width / 2] = *(p1 + i * wrap / 2 + j);
+    //        data[2][j + i * width / 2] = *(p2 + i * wrap / 2 + j);
+    //    }
+    //}
+    if (width == frame->linesize[0])    //如果没有进行数据对齐，紧密型数据
+    {
+        memcpy(data[0], frame->data[0], width * height);
+        memcpy(data[1], frame->data[1], width * height / 4);
+        memcpy(data[2], frame->data[2], width * height / 4);
+    } else    //
+    {
+        for (int i = 0; i < height; i++)    // Y
+            memcpy(data[0] + width * i, frame->data[0] + frame->linesize[0] * i, width);
+        for (int i = 0; i < height / 2; i++)    // U
+            memcpy(data[1] + width / 2 * i, frame->data[1] + frame->linesize[1] * i / 2, width / 2);
+        for (int i = 0; i < height / 2; i++)    // V
+            memcpy(data[2] + width / 2 * i, frame->data[2] + frame->linesize[2] * i / 2, width / 2);
     }
-    /*--UV数据逐字节拷贝进材质data里面--*/
-    for (int i = 0; i < frame->height / 2; i++) {
-        for (int j = 0; j < frame->width / 2; j++) {
-            data[1][j + i * width / 2] = *(p1 + i * wrap / 2 + j);
-            data[2][j + i * width / 2] = *(p2 + i * wrap / 2 + j);
-        }
-    }
-    //    qDebug()<<time.elapsed()<<"ms";
 
-    av_frame_free(&frame);    //释放frame内存
     mux.unlock();
+    av_frame_free(&frame);    //释放frame内存
     update();
 }
 

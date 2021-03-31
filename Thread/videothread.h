@@ -8,23 +8,23 @@
 #include <list>
 #include <mutex>
 
+#include "decodethread.h"
 #include "mydecode.h"
 #include "videobase.h"
 
-class VideoThread : public QThread {
+class VideoThread : public DecodeThread {
   public:
+    long long syncPts = 0;    //同步pts
+    long long pts = 0;        //当前播放的pts
+
     VideoThread();
     ~VideoThread();
     virtual bool Open(AVCodecParameters* para, VideoBase* video);
-    virtual void Push(AVPacket* pkt);    //把包推进队列
+
     void run();
 
   protected:
-    int maxListSize = 100;    // 44100/1024=40多帧，25fps，那么100就是约为2s的缓冲
-    bool isExit = false;      //立即退出,防止Push阻塞
-    std::list<AVPacket*> pktList;
     std::mutex m_mux;    //锁
-    MyDecode* decode = NULL;
     VideoBase* video = NULL;
 };
 

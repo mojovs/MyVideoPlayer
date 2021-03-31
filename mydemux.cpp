@@ -52,7 +52,8 @@ bool MyDemux::Open(const char* url) {
     av_dump_format(fmtCtx, 0, url, 0);
     duration = fmtCtx->duration / (AV_TIME_BASE / 1000);    //毫秒
 
-    qDebug() << "duration" << duration;
+    qDebug() << "duration" << duration / 3600 << ":" << duration % 3600 / 60 << ":" << duration % 3600 % 60;
+    ;
 
     /*--获取视频流号-*/
     vStreamIndex = av_find_best_stream(fmtCtx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
@@ -68,7 +69,7 @@ bool MyDemux::Open(const char* url) {
     qDebug() << vStreamIndex << "宽" << inputStream->codecpar->width;
     qDebug() << vStreamIndex << "高" << inputStream->codecpar->height;
 
-    qDebug() << vStreamIndex << "fps " << inputStream->codecpar->height;
+    qDebug() << vStreamIndex << "fps " << r2d(inputStream->avg_frame_rate);
 
     /*--获取频音流号和相关信息--*/
     aStreamIndex = av_find_best_stream(fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
@@ -81,7 +82,6 @@ bool MyDemux::Open(const char* url) {
     qDebug() << aStreamIndex << "采样率=" << inputStream->codecpar->sample_rate;
     qDebug() << aStreamIndex << "通道数=" << inputStream->codecpar->channels;
     qDebug() << aStreamIndex << "输出类型=" << inputStream->codecpar->channel_layout;
-    qDebug() << aStreamIndex << "frame size= " << r2d(inputStream->avg_frame_rate);
 
     mux.unlock();    //整个读取文件流程完毕，解锁
 
@@ -108,9 +108,9 @@ AVPacket* MyDemux::Read() {
     }
     /*--pkt的pts dts单位 定为毫秒--*/
     pkt->pts = pkt->pts * r2d(fmtCtx->streams[pkt->stream_index]->time_base) * 1000;
-    qDebug() << "pkt->pts:" << pkt->pts;
+    // qDebug() << "pkt->pts:" << pkt->pts;
     pkt->dts = pkt->dts * r2d(fmtCtx->streams[pkt->stream_index]->time_base) * 1000;
-    qDebug() << "pkt->dts:" << pkt->dts;
+    // qDebug() << "pkt->dts:" << pkt->dts;
 
     mux.unlock();    //解锁
     return pkt;
@@ -223,8 +223,6 @@ bool MyDemux::isVideo(AVPacket* pkt) {
     if (!pkt)
         return false;
     if (pkt->stream_index == vStreamIndex) {
-        qDebug() << "This is a video pkt";
-
         return true;
     } else
         return false;
@@ -234,7 +232,6 @@ bool MyDemux::isAudio(AVPacket* pkt) {
     if (!pkt)
         return false;
     if (pkt->stream_index == aStreamIndex) {
-        qDebug() << "This is a audio pkt";
         return true;
     } else
         return false;

@@ -7,25 +7,25 @@
 #include <QThread>
 #include <mutex>
 
+#include "decodethread.h"
 #include "myaudioplay.h"
 #include "mydecode.h"
 #include "myresample.h"
 
-class AudioThread : public QThread {
+class AudioThread : public DecodeThread {
   public:
+    long long pts = 0;
+
     AudioThread();
     virtual ~AudioThread();
 
     virtual bool Open(AVCodecParameters* para);
-    virtual void Push(AVPacket* pkt);    //把包推进队列
     void run();
+    virtual void Close();    //停止线程时
 
   protected:
-    int maxListSize = 100;    // 44100/1024=40多帧，25fps，那么100就是约为2s的缓冲
-    bool isExit = false;      //立即退出,防止Push阻塞
-    std::list<AVPacket*> pktList;
-    std::mutex m_mux;    //锁
-    MyDecode* decode = NULL;
+    std::mutex m_AudioMutex;    //锁
+
     MyAudioPlay* audioPlayer = NULL;
     MyResample* resample = NULL;
 };
