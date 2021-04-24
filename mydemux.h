@@ -22,6 +22,8 @@ class MyDemux {
     virtual bool Open(const char* url);
     /*--读取出包，注意：内存泄漏问题--*/
     AVPacket* Read();
+    /*--只读取视频流的包--*/
+    AVPacket* ReadVideoPacket();
     /*--拷贝参数--*/
     AVCodecParameters* CopyVideoParam();    //拷贝视频参数
     AVCodecParameters* CopyAudioParam();    //拷贝音频参数
@@ -37,6 +39,7 @@ class MyDemux {
 
   protected:
     std::mutex mux;    //为了对fmtCtx进行保护
+    std::mutex dmux;
     AVFormatContext* fmtCtx = NULL;
     int vStreamIndex = 0;    //音视频流索引
     int aStreamIndex = 0;

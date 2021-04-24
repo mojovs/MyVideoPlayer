@@ -115,6 +115,28 @@ AVPacket* MyDemux::Read() {
     mux.unlock();    //解锁
     return pkt;
 }
+
+/*--------------------------只读取视频流包----------------------------*/
+AVPacket* MyDemux::ReadVideoPacket() {
+    dmux.lock();
+    if (!fmtCtx) {
+        mux.unlock();
+        return NULL;
+    }
+
+    dmux.unlock();
+    AVPacket* pkt = NULL;
+    for (int i = 0; i < 18; i++) {    //暂时找18次,如果以后出先掉真
+        pkt = Read();
+        if (!pkt)
+            break;
+        if (pkt->stream_index == vStreamIndex)    //如果找到了视频流的包，立即退出
+            break;
+        av_packet_free(&pkt);    //释放掉非视频包
+    }
+    return pkt;
+}
+
 /*--------------------------拷贝视频参数出来,需要手动free掉----------------------------*/
 AVCodecParameters* MyDemux::CopyVideoParam() {
     mux.lock();    //给fmtCtx上锁

@@ -15,17 +15,25 @@
 class AudioThread : public DecodeThread {
   public:
     long long pts = 0;
+    bool isFileOpen = false;    //文件打开状态
 
+    /*--函数--*/
     AudioThread();
     virtual ~AudioThread();
 
     virtual bool Open(AVCodecParameters* para);
     void run();
     virtual void Close();    //停止线程时
+    virtual void Clean();    //清理缓存
+
+    void setPause(bool isPause);
+    virtual void setVol(qreal value);
 
   protected:
+    bool isPause = false;
     std::mutex m_AudioMutex;    //锁
 
+    /*--函数--*/
     MyAudioPlay* audioPlayer = NULL;
     MyResample* resample = NULL;
 };

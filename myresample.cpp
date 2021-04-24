@@ -36,8 +36,8 @@ bool MyResample::Close() {
         return false;
     }
     swr_free(&swrCtx);
-    swr_close(swrCtx);
     m_mux.unlock();
+    return true;
 }
 
 int MyResample::Read(AVFrame* frame, unsigned char* outdata) {

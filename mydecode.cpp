@@ -70,6 +70,7 @@ bool MyDecode::Send(AVPacket* pkt) {
         qDebug() << "Packet empty or invalid";
         return false;
     }
+
     mux.lock();
     if (!codecCtx) {
         mux.unlock();
@@ -96,7 +97,7 @@ AVFrame* MyDecode::Receive() {
     if (!codecCtx) {
         mux.unlock();
         qDebug() << "There is no codecCtx";
-        return false;
+        return NULL;
     }
 
     AVFrame* frame = av_frame_alloc();
@@ -106,7 +107,7 @@ AVFrame* MyDecode::Receive() {
         //  qDebug() << "codec_type is " << codecCtx->codec_type;
         mux.unlock();
         av_frame_free(&frame);
-        return false;
+        return NULL;
     }
     pts = frame->pts;
     mux.unlock();

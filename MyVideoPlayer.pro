@@ -20,6 +20,7 @@ SOURCES += \
         mainwindow.cpp \
     mydemux.cpp \
     mydecode.cpp \
+    myslider.cpp \
     myvideowidget.cpp \
     myresample.cpp \
     myaudioplay.cpp \
@@ -27,12 +28,14 @@ SOURCES += \
     Thread/audiothread.cpp \
     Thread/demuxthread.cpp \
     Thread/videothread.cpp \
-    Thread/decodethread.cpp
+    Thread/decodethread.cpp \
+    volSliderWidget.cpp
 
 HEADERS += \
         mainwindow.h \
     mydemux.h \
     mydecode.h \
+    myslider.h \
     myvideowidget.h \
     myresample.h \
     common.h \
@@ -42,10 +45,12 @@ HEADERS += \
     Thread/demuxthread.h \
     Thread/videobase.h \
     Thread/videothread.h \
-    Thread/decodethread.h
+    Thread/decodethread.h \
+    volSliderWidget.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+        volSliderWidget.ui
 FORMS += \
         mainwindow.ui
 

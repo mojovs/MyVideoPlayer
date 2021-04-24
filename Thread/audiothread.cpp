@@ -1,5 +1,7 @@
 ﻿#include "audiothread.h"
 
+#include <QTime>
+
 #include "common.h"
 
 AudioThread::AudioThread() {
@@ -54,8 +56,19 @@ bool AudioThread::Open(AVCodecParameters* para) {
 void AudioThread::run() {
     unsigned char* pcmData = new unsigned char[1024 * 1024 * 2];    // 2M
     while (!isExit) {
-        AVPacket* pkt = this->Pop();
         m_AudioMutex.lock();
+        if (!isFileOpen)    //文件没打开
+        {
+            m_AudioMutex.unlock();
+            msleep(5);
+            continue;
+        }
+        if (isPause) {
+            m_AudioMutex.unlock();
+            msleep(5);
+            continue;
+        }
+        AVPacket* pkt = this->Pop();
         bool ret = decode->Send(pkt);    //发送包
         if (!ret) {
             m_AudioMutex.unlock();
@@ -78,9 +91,9 @@ void AudioThread::run() {
             //数据写入播放音频
             while (!isExit) {
                 if (ret <= 0)
-                    break;                                         //如果读取数据小，直接返回
-                if (audioPlayer->FreeBufferAvailable() < ret) {    //缓冲够
-                    msleep(1);                                     //缓冲不够就等待
+                    break;                                                    //如果读取数据小，直接返回
+                if (audioPlayer->FreeBufferAvailable() < ret || isPause) {    //缓冲不够，或者处于暂停状态，在这里等待
+                    msleep(1);                                                //缓冲不够就等待
                     continue;
                 }
                 audioPlayer->Write(pcmData, ret);
@@ -96,16 +109,36 @@ void AudioThread::run() {
 void AudioThread::Close() {
     DecodeThread::Close();    //父类继承
     if (resample) {
-        m_AudioMutex.lock();
         resample->Close();
+        m_AudioMutex.lock();
         delete resample;
         resample = NULL;
         m_AudioMutex.unlock();
     }
+
     if (audioPlayer) {
-        m_AudioMutex.lock();
         audioPlayer->Close();
+        m_AudioMutex.lock();
         audioPlayer = NULL;
         m_AudioMutex.unlock();
     }
 }
+
+void AudioThread::Clean() {
+    DecodeThread::Clean();
+    m_mutex.lock();
+    if (audioPlayer)
+        audioPlayer->Clean();
+    m_mutex.unlock();
+}
+
+void AudioThread::setPause(bool isPause) {
+    this->isPause = isPause;
+    //.lock();
+    if (audioPlayer) {
+        audioPlayer->setPause(isPause);
+    }
+    // m_AudioMutex.unlock();
+}
+
+void AudioThread::setVol(qreal value) { audioPlayer->setVol(value); }

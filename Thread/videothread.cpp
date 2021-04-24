@@ -10,7 +10,8 @@ VideoThread::~VideoThread() {}
 bool VideoThread::Open(AVCodecParameters* para, VideoBase* video) {
     if (!para)
         return false;
-    m_mux.lock();    //上锁
+    Clean();
+    m_mutex.lock();    //上锁
 
     /*--视频初始化界面--*/
     this->video = video;    //给VideoBase类赋值
@@ -23,29 +24,40 @@ bool VideoThread::Open(AVCodecParameters* para, VideoBase* video) {
     /*-打开解码器--*/
     int success = decode->Open(para);    //这里可能会对param进行释放
     if (!success) {
-        m_mux.unlock();
+        m_mutex.unlock();
         qDebug() << "decode open failed";
         return false;
     }
     if (success)
         qDebug() << "Video open success";
-    m_mux.unlock();    //解锁
+    m_mutex.unlock();    //解锁
     return success;
 }
 
 void VideoThread::run() {
     while (!isExit) {
-        m_mux.lock();
+        m_mutex.lock();
+        if (!isFileOpen)    //文件没打开就循环
+        {
+            m_mutex.unlock();
+            msleep(5);
+            continue;
+        }
+        if (isPause) {
+            m_mutex.unlock();
+            msleep(5);
+            continue;
+        }
         /*--播放pts大于同步pts-*/
         if (syncPts > 0 && syncPts < decode->pts) {    //目前刚解码出来的视频帧的pts 比同步pts(当前播放的音频帧)快,等待
-            m_mux.unlock();
+            m_mutex.unlock();
             msleep(1);
             continue;
         }
         AVPacket* pkt = this->Pop();     //从队列里获取数据
         bool ret = decode->Send(pkt);    //发送包
         if (!ret) {
-            m_mux.unlock();
+            m_mutex.unlock();
             qDebug() << __FILE__ << __LINE__ << "decode send failed:" << ret;
             msleep(1);
             continue;
@@ -61,6 +73,38 @@ void VideoThread::run() {
                                           // qDebug() << "绘图用时" << time.elapsed();
             }
         }
-        m_mux.unlock();
+        m_mutex.unlock();
     }
+}
+
+void VideoThread::setPause(bool isPuase) {
+    m_mutex.lock();
+    this->isPause = isPuase;
+    m_mutex.unlock();
+}
+
+bool VideoThread::RepaintByPts(AVPacket* pkt, long long ptsNow) {
+    m_mutex.lock();
+    bool ret = decode->Send(pkt);    //就单独把这包发出来，然后送到解码队列里面
+    if (!ret) {
+        m_mutex.unlock();
+        return false;
+    }
+    AVFrame* frame = decode->Receive();    //单独把这包内容给接受
+    if (!frame) {
+        m_mutex.unlock();
+        return false;
+    }
+    if (decode->pts >= ptsNow) {
+        if (video) {
+            video->Repaint(frame);
+        }
+        m_mutex.unlock();
+        return true;
+    }
+    if (!pkt)
+        return false;
+    av_frame_free(&frame);    //释放掉frame
+    m_mutex.unlock();
+    return false;
 }

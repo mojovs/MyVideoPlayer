@@ -14,18 +14,21 @@
 
 class VideoThread : public DecodeThread {
   public:
-    long long syncPts = 0;    //同步pts
-    long long pts = 0;        //当前播放的pts
+    long long syncPts = 0;      //同步pts
+    long long pts = 0;          //当前播放的pts
+    bool isFileOpen = false;    //当前文件打开不
 
     VideoThread();
     ~VideoThread();
     virtual bool Open(AVCodecParameters* para, VideoBase* video);
-
-    void run();
+    virtual void run();
+    virtual void setPause(bool isPuase);
+    virtual bool RepaintByPts(AVPacket* pkt, long long ptsNow);
 
   protected:
-    std::mutex m_mux;    //锁
+    std::mutex m_mutex;    //锁
     VideoBase* video = NULL;
+    bool isPause = false;
 };
 
 #endif    // VIDEOTHREAD_H

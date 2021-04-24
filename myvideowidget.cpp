@@ -193,7 +193,6 @@ void MyVideoWidget::paintGL() {
     glUniform1i(unis[2], 2);    // 0层
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    qDebug() << "paint GL";
     mux.unlock();
 }
 void MyVideoWidget::resizeGL(int w, int h) {

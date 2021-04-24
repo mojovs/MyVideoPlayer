@@ -26,7 +26,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QSlider" name="timeSlider">
+     <widget class="MySlider" name="timeSlider">
       <property name="maximum">
        <number>999</number>
       </property>
@@ -37,6 +37,13 @@
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="btnPause">
+        <property name="text">
+         <string>暂停</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QPushButton" name="btnOpenFile">
         <property name="text">
@@ -54,6 +61,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="btnSetVol">
+        <property name="text">
+         <string>音量</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -64,7 +81,7 @@
      <x>0</x>
      <y>0</y>
      <width>1106</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
@@ -84,6 +101,11 @@
    <class>MyVideoWidget</class>
    <extends>QOpenGLWidget</extends>
    <header location="global">myvideowidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MySlider</class>
+   <extends>QSlider</extends>
+   <header location="global">myslider.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
